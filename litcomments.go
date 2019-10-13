@@ -45,15 +45,69 @@ func run(pass *analysis.Pass) (interface{}, error) {
 						switch e.Name {
 						case "nil":
 							if t, ok := pass.TypesInfo.TypeOf(e).(*types.Basic); ok && t.Kind() == types.UntypedNil {
-								pass.Reportf(e.Pos(), "Nil literal without comments is found.")
+								d := analysis.Diagnostic{
+									Pos:     e.Pos(),
+									Message: "Nil literal without comments is found.",
+								}
+								if name := params.At(i).Name(); name != "" {
+									d.SuggestedFixes = []analysis.SuggestedFix{
+										{
+											Message: "Add comments",
+											TextEdits: []analysis.TextEdit{
+												{
+													Pos:     e.End(),
+													End:     e.End(),
+													NewText: []byte(fmt.Sprintf(" /* %s */", name)),
+												},
+											},
+										},
+									}
+								}
+								pass.Report(d)
 							}
 						case "true":
 							if t, ok := pass.TypesInfo.TypeOf(e).(*types.Basic); ok && t.Kind() == types.Bool {
-								pass.Reportf(e.Pos(), "true literal without comments is found.")
+								d := analysis.Diagnostic{
+									Pos:     e.Pos(),
+									Message: "true literal without comments is found.",
+								}
+								if name := params.At(i).Name(); name != "" {
+									d.SuggestedFixes = []analysis.SuggestedFix{
+										{
+											Message: "Add comments",
+											TextEdits: []analysis.TextEdit{
+												{
+													Pos:     e.End(),
+													End:     e.End(),
+													NewText: []byte(fmt.Sprintf(" /* %s */", name)),
+												},
+											},
+										},
+									}
+								}
+								pass.Report(d)
 							}
 						case "false":
 							if t, ok := pass.TypesInfo.TypeOf(e).(*types.Basic); ok && t.Kind() == types.Bool {
-								pass.Reportf(e.Pos(), "false literal without comments is found.")
+								d := analysis.Diagnostic{
+									Pos:     e.Pos(),
+									Message: "false literal without comments is found.",
+								}
+								if name := params.At(i).Name(); name != "" {
+									d.SuggestedFixes = []analysis.SuggestedFix{
+										{
+											Message: "Add comments",
+											TextEdits: []analysis.TextEdit{
+												{
+													Pos:     e.End(),
+													End:     e.End(),
+													NewText: []byte(fmt.Sprintf(" /* %s */", name)),
+												},
+											},
+										},
+									}
+								}
+								pass.Report(d)
 							}
 						}
 					}
@@ -83,7 +137,25 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				case *ast.BasicLit:
 					c := commentmap.Comments(e)
 					if len(c) == 0 {
-						pass.Reportf(e.Pos(), "Basic literal without comments %s is found.", e.Value)
+						d := analysis.Diagnostic{
+							Pos:     e.Pos(),
+							Message: fmt.Sprintf("Basic literal without comments %s is found.", e.Value),
+						}
+						if name := params.At(i).Name(); name != "" {
+							d.SuggestedFixes = []analysis.SuggestedFix{
+								{
+									Message: "Add comments",
+									TextEdits: []analysis.TextEdit{
+										{
+											Pos:     e.End(),
+											End:     e.End(),
+											NewText: []byte(fmt.Sprintf(" /* %s */", name)),
+										},
+									},
+								},
+							}
+						}
+						pass.Report(d)
 					}
 				}
 			}
