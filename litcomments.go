@@ -35,7 +35,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	inspect.Preorder(nodeFilter, func(n ast.Node) {
 		switch n := n.(type) {
 		case *ast.CallExpr:
-			s := pass.TypesInfo.Types[n.Fun].Type.(*types.Signature)
+			s := pass.TypesInfo.TypeOf(n.Fun).(*types.Signature)
 			params := s.Params()
 			for i, e := range n.Args {
 				switch e := e.(type) {
